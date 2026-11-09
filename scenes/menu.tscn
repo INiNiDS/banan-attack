@@ -1,0 +1,51 @@
+[gd_scene format=3 uid="uid://fayn5q7anlvw"]
+
+[ext_resource type="Script" uid="uid://ds2jo3t4ubing" path="res://scripts/menu.gd" id="1_vjb58"]
+[ext_resource type="Texture2D" uid="uid://cr4u832o6ecyi" path="res://assets/background-for-menu.png" id="2_con2f"]
+[ext_resource type="Script" uid="uid://hxa3t26xsvhr" path="res://scripts/singlebutton.gd" id="3_con2f"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_k6hos"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lhe6d"]
+bg_color = Color(0.2693424, 0.7125929, 3.85046e-07, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_j86hm"]
+bg_color = Color(0.17000708, 0.6163137, 0.9999998, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6hljj"]
+bg_color = Color(5.0537287e-06, 0.7148565, 0.41666436, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4a0sb"]
+bg_color = Color(0, 0.7036969, 0.5462419, 1)
+
+[node name="Menu" type="Node2D" unique_id=696085016]
+script = ExtResource("1_vjb58")
+
+[node name="BackgroundForMenu" type="Sprite2D" parent="." unique_id=497943952]
+position = Vector2(575.5, 324)
+scale = Vector2(0.59947914, 0.6)
+texture = ExtResource("2_con2f")
+
+[node name="Node" type="Node" parent="." unique_id=213839809]
+
+[node name="CoopButton" type="Button" parent="Node" unique_id=1508216739]
+material = SubResource("CanvasItemMaterial_k6hos")
+offset_left = 435.0
+offset_top = 285.0
+offset_right = 769.0
+offset_bottom = 350.0
+theme_override_styles/normal = SubResource("StyleBoxFlat_lhe6d")
+theme_override_styles/hover = SubResource("StyleBoxFlat_j86hm")
+text = "Local Co-op"
+
+[node name="Singlebutton" type="Button" parent="Node" unique_id=1864865270]
+offset_left = 435.0
+offset_top = 194.0
+offset_right = 769.0
+offset_bottom = 259.0
+theme_override_styles/normal = SubResource("StyleBoxFlat_6hljj")
+theme_override_styles/hover = SubResource("StyleBoxFlat_4a0sb")
+text = "Single"
+script = ExtResource("3_con2f")
+
+[connection signal="pressed" from="Node/Singlebutton" to="Node/Singlebutton" method="_on_pressed"]
