@@ -18,6 +18,9 @@ bg_color = Color(5.0537287e-06, 0.7148565, 0.41666436, 1)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4a0sb"]
 bg_color = Color(0, 0.7036969, 0.5462419, 1)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_con2f"]
+bg_color = Color(0.7809348, 0.55290085, 5.7756904e-07, 1)
+
 [node name="Menu" type="Node2D" unique_id=696085016]
 script = ExtResource("1_vjb58")
 
@@ -36,7 +39,7 @@ offset_right = 769.0
 offset_bottom = 350.0
 theme_override_styles/normal = SubResource("StyleBoxFlat_lhe6d")
 theme_override_styles/hover = SubResource("StyleBoxFlat_j86hm")
-text = "Local Co-op"
+text = "Local Co-op (Don't working :( )"
 
 [node name="Singlebutton" type="Button" parent="Node" unique_id=1864865270]
 offset_left = 435.0
@@ -48,4 +51,13 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_4a0sb")
 text = "Single"
 script = ExtResource("3_con2f")
 
+[node name="GeneratorReview" type="Button" parent="Node" unique_id=1085266712]
+offset_left = 433.0
+offset_top = 374.0
+offset_right = 771.0
+offset_bottom = 434.0
+theme_override_styles/normal = SubResource("StyleBoxFlat_con2f")
+text = "Review Generator"
+
 [connection signal="pressed" from="Node/Singlebutton" to="Node/Singlebutton" method="_on_pressed"]
+[connection signal="pressed" from="Node/GeneratorReview" to="." method="_on_button_pressed"]
