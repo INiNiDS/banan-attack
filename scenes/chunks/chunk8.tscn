@@ -1,5 +1,6 @@
 [gd_scene format=4 uid="uid://dav3e6bk42lqu"]
 
+[ext_resource type="PackedScene" uid="uid://c1l3d7nuv4fy0" path="res://scenes/hud.tscn" id="1_n3wpa"]
 [ext_resource type="PackedScene" uid="uid://baga0r0cge3sh" path="res://scenes/player1.tscn" id="1_ofv4w"]
 [ext_resource type="Texture2D" uid="uid://bafiu8louivor" path="res://assets/pixel-adventure/Free/Terrain/Terrain (16x16).png" id="2_avxwr"]
 [ext_resource type="PackedScene" uid="uid://bfrm58ns6qcw1" path="res://scenes/loot_banana.tscn" id="3_avxwr"]
@@ -300,6 +301,8 @@ physics_layer_0/collision_layer = 1
 sources/0 = SubResource("TileSetAtlasSource_57xfd")
 
 [node name="Chunk8" type="Node2D" unique_id=259809428]
+
+[node name="HUD" parent="." unique_id=1841418215 instance=ExtResource("1_n3wpa")]
 
 [node name="Player 1" parent="." unique_id=1408675634 instance=ExtResource("1_ofv4w")]
 position = Vector2(32, -21)

@@ -3,8 +3,11 @@ extends Area2D
 const SPEED: float = 400.0
 var direction: float = 1.0
 
+@onready var asprite: AnimatedSprite2D = $AnimatedSprite2D
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	asprite.play()
 	body_entered.connect(_on_body_shape_entered)
 
 

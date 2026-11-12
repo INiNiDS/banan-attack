@@ -12,8 +12,13 @@ var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 @onready var gun: Sprite2D = $Gun
 const BANANA_BULLET = preload("res://scenes/banana_bullet.tscn")
 @onready var muzzle = $Gun/Muzzle
+@onready var hud = get_parent().get_node_or_null("HUD")
 
 var ammo: int = 10
+
+func _ready() -> void:
+	if hud:
+		hud.update_ammo(ammo)
 
 func _input(event: InputEvent) -> void:
 	if Input.is_action_just_pressed("ui_shoot") or Input.is_physical_key_pressed(KEY_J):
@@ -59,11 +64,16 @@ func _physics_process(delta: float) -> void:
 
 func add_ammo(amount: int) -> void:
 	ammo += amount
+	if hud:
+		hud.update_ammo(ammo)
+		
 
 func shoot() -> void:
 	if ammo <= 0:
 		return
 	ammo -= 1
+	if hud:
+		hud.update_ammo(ammo)
 	var bullet = BANANA_BULLET.instantiate()
 	bullet.global_position = muzzle.global_position
 	if sprite.flip_h:
