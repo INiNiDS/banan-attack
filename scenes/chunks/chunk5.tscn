@@ -2,6 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://baga0r0cge3sh" path="res://scenes/player1.tscn" id="1_jb6ia"]
 [ext_resource type="Texture2D" uid="uid://bafiu8louivor" path="res://assets/pixel-adventure/Free/Terrain/Terrain (16x16).png" id="2_aobnj"]
+[ext_resource type="PackedScene" uid="uid://bfrm58ns6qcw1" path="res://scenes/loot_banana.tscn" id="3_aobnj"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_57xfd"]
 texture = ExtResource("2_aobnj")
@@ -311,3 +312,20 @@ tile_set = SubResource("TileSet_5runp")
 
 [node name="EndMarker" type="Marker2D" parent="." unique_id=1193858413]
 position = Vector2(447, 0)
+
+[node name="LootContainer" type="Node" parent="." unique_id=72098645]
+
+[node name="LootBanana" parent="LootContainer" unique_id=1287232375 instance=ExtResource("3_aobnj")]
+position = Vector2(350, -1867)
+
+[node name="LootBanana2" parent="LootContainer" unique_id=1127037227 instance=ExtResource("3_aobnj")]
+position = Vector2(457, -1946)
+
+[node name="LootBanana3" parent="LootContainer" unique_id=140317275 instance=ExtResource("3_aobnj")]
+position = Vector2(65, -1084)
+
+[node name="LootBanana4" parent="LootContainer" unique_id=839312382 instance=ExtResource("3_aobnj")]
+position = Vector2(334, -1252)
+
+[node name="LootBanana5" parent="LootContainer" unique_id=824314728 instance=ExtResource("3_aobnj")]
+position = Vector2(289, -1649)

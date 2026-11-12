@@ -2,6 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://baga0r0cge3sh" path="res://scenes/player1.tscn" id="1_1u2kg"]
 [ext_resource type="Texture2D" uid="uid://bafiu8louivor" path="res://assets/pixel-adventure/Free/Terrain/Terrain (16x16).png" id="2_jfttx"]
+[ext_resource type="PackedScene" uid="uid://bfrm58ns6qcw1" path="res://scenes/loot_banana.tscn" id="3_jfttx"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_57xfd"]
 texture = ExtResource("2_jfttx")
@@ -311,3 +312,35 @@ tile_set = SubResource("TileSet_5runp")
 
 [node name="EndMarker" type="Marker2D" parent="." unique_id=231416561]
 position = Vector2(784, 1)
+
+[node name="LootContainer" type="Node" parent="." unique_id=553877822]
+
+[node name="LootBanana" parent="LootContainer" unique_id=1287232375 instance=ExtResource("3_jfttx")]
+position = Vector2(15, -1117)
+
+[node name="LootBanana2" parent="LootContainer" unique_id=1051506243 instance=ExtResource("3_jfttx")]
+position = Vector2(256, -1370)
+
+[node name="LootBanana3" parent="LootContainer" unique_id=1348477807 instance=ExtResource("3_jfttx")]
+position = Vector2(63, -575)
+
+[node name="LootBanana4" parent="LootContainer" unique_id=1746625990 instance=ExtResource("3_jfttx")]
+position = Vector2(608, -762)
+
+[node name="LootBanana5" parent="LootContainer" unique_id=1823158689 instance=ExtResource("3_jfttx")]
+position = Vector2(254, -217)
+
+[node name="LootBanana6" parent="LootContainer" unique_id=1178510329 instance=ExtResource("3_jfttx")]
+position = Vector2(633, -270)
+
+[node name="LootBanana7" parent="LootContainer" unique_id=1047421810 instance=ExtResource("3_jfttx")]
+position = Vector2(45, -354)
+
+[node name="LootBanana8" parent="LootContainer" unique_id=2058230706 instance=ExtResource("3_jfttx")]
+position = Vector2(180, -455)
+
+[node name="LootBanana9" parent="LootContainer" unique_id=1346793738 instance=ExtResource("3_jfttx")]
+position = Vector2(472, -443)
+
+[node name="LootBanana10" parent="LootContainer" unique_id=30064948 instance=ExtResource("3_jfttx")]
+position = Vector2(599, -406)

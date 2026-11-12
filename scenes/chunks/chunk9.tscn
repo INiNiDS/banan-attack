@@ -2,6 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://baga0r0cge3sh" path="res://scenes/player1.tscn" id="1_5vju5"]
 [ext_resource type="Texture2D" uid="uid://bafiu8louivor" path="res://assets/pixel-adventure/Free/Terrain/Terrain (16x16).png" id="2_x2iop"]
+[ext_resource type="PackedScene" uid="uid://bfrm58ns6qcw1" path="res://scenes/loot_banana.tscn" id="3_x2iop"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_57xfd"]
 texture = ExtResource("2_x2iop")
@@ -311,3 +312,6 @@ tile_set = SubResource("TileSet_5runp")
 
 [node name="EndMarker" type="Marker2D" parent="." unique_id=231416561]
 position = Vector2(2319, 4)
+
+[node name="LootBanana" parent="." unique_id=1287232375 instance=ExtResource("3_x2iop")]
+position = Vector2(2141, -396)

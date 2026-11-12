@@ -2,6 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://baga0r0cge3sh" path="res://scenes/player1.tscn" id="1_5ttgl"]
 [ext_resource type="Texture2D" uid="uid://bafiu8louivor" path="res://assets/pixel-adventure/Free/Terrain/Terrain (16x16).png" id="2_1llhh"]
+[ext_resource type="PackedScene" uid="uid://bfrm58ns6qcw1" path="res://scenes/loot_banana.tscn" id="3_1llhh"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_57xfd"]
 texture = ExtResource("2_1llhh")
@@ -311,3 +312,35 @@ tile_set = SubResource("TileSet_5runp")
 
 [node name="EndMarker" type="Marker2D" parent="." unique_id=231416561]
 position = Vector2(784, 1)
+
+[node name="LootContainer" type="Node" parent="." unique_id=112515417]
+
+[node name="LootBanana" parent="LootContainer" unique_id=1287232375 instance=ExtResource("3_1llhh")]
+position = Vector2(15, -1117)
+
+[node name="LootBanana2" parent="LootContainer" unique_id=741293817 instance=ExtResource("3_1llhh")]
+position = Vector2(256, -1370)
+
+[node name="LootBanana3" parent="LootContainer" unique_id=867717350 instance=ExtResource("3_1llhh")]
+position = Vector2(33, -715)
+
+[node name="LootBanana4" parent="LootContainer" unique_id=1819689313 instance=ExtResource("3_1llhh")]
+position = Vector2(333, -715)
+
+[node name="LootBanana5" parent="LootContainer" unique_id=1554360282 instance=ExtResource("3_1llhh")]
+position = Vector2(723, -171)
+
+[node name="LootBanana6" parent="LootContainer" unique_id=582238361 instance=ExtResource("3_1llhh")]
+position = Vector2(657, -651)
+
+[node name="LootBanana7" parent="LootContainer" unique_id=1043305104 instance=ExtResource("3_1llhh")]
+position = Vector2(542, -799)
+
+[node name="LootBanana8" parent="LootContainer" unique_id=764859777 instance=ExtResource("3_1llhh")]
+position = Vector2(471, -619)
+
+[node name="LootBanana9" parent="LootContainer" unique_id=2046384430 instance=ExtResource("3_1llhh")]
+position = Vector2(119, -631)
+
+[node name="LootBanana10" parent="LootContainer" unique_id=680669349 instance=ExtResource("3_1llhh")]
+position = Vector2(107, -384)
