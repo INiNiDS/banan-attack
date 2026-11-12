@@ -1,0 +1,13 @@
+[package]
+name = "server-receiver"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tokio = {version = "1.54.1", features = ["full"]}
+axum = {version = "0.8.9", features = ["multipart"]}
+aws-sdk-s3 = "1.159.0"
+aws-config = "1.13.2"
+serde = { version = "1.0", features = ["derive"] }
+serde_repr = "0.1.21"
+dotenvy = "0.15.7"
