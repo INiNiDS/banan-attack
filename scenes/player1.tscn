@@ -5,6 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://pr3gsjl0yoxo" path="res://assets/pixel-adventure/Free/Main Characters/Virtual Guy/Idle (32x32).png" id="2_lkt5g"]
 [ext_resource type="Texture2D" uid="uid://dx6yp4qskfqof" path="res://assets/pixel-adventure/Free/Main Characters/Virtual Guy/Run (32x32).png" id="3_lkt5g"]
 [ext_resource type="Texture2D" uid="uid://bqq1q0n4sh7ii" path="res://assets/pixel-adventure/Free/Main Characters/Virtual Guy/Jump (32x32).png" id="4_dcfem"]
+[ext_resource type="PackedScene" uid="uid://4oska1bqy0f" path="res://scenes/gun.tscn" id="6_dcfem"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_2tvqc"]
 atlas = ExtResource("2_64a0l")
@@ -222,3 +223,6 @@ shape = SubResource("CapsuleShape2D_k6hos")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=130265512]
 zoom = Vector2(3, 3)
+
+[node name="Gun" parent="." unique_id=1169442989 instance=ExtResource("6_dcfem")]
+position = Vector2(23, 7)

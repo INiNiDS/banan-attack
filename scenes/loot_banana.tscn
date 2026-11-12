@@ -1,0 +1,34 @@
+[gd_scene format=3 uid="uid://bfrm58ns6qcw1"]
+
+[ext_resource type="Script" uid="uid://bpdkyy58gn1n3" path="res://scripts/loot_banana.gd" id="1_e2rgr"]
+[ext_resource type="Texture2D" uid="uid://b1u0irrwsy8k2" path="res://assets/pixel-adventure/Free/Items/Fruits/Bananas.png" id="1_n5spn"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_lhe6d"]
+radius = 8.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e2rgr"]
+atlas = ExtResource("1_n5spn")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_k6hos"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e2rgr")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="LootBanana" type="Area2D" unique_id=1287232375]
+script = ExtResource("1_e2rgr")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1582703934]
+shape = SubResource("CircleShape2D_lhe6d")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=603151160]
+sprite_frames = SubResource("SpriteFrames_k6hos")
+frame_progress = 0.96664566
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

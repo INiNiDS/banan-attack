@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://4oska1bqy0f"]
+
+[ext_resource type="Texture2D" uid="uid://dok77r8ldq3xj" path="res://assets/gun.png" id="1_x77fm"]
+
+[node name="Gun" type="Sprite2D" unique_id=1169442989]
+texture = ExtResource("1_x77fm")
+
+[node name="Muzzle" type="Marker2D" parent="." unique_id=277366914]
+position = Vector2(6, -2)

@@ -9,7 +9,15 @@ var coyote_timer: float = 0.0
 
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 @onready var sprite = $AnimatedSprite2D
+@onready var gun: Sprite2D = $Gun
+const BANANA_BULLET = preload("res://scenes/banana_bullet.tscn")
+@onready var muzzle = $Gun/Muzzle
 
+var ammo: int = 10
+
+func _input(event: InputEvent) -> void:
+	if Input.is_action_just_pressed("ui_shoot") or Input.is_physical_key_pressed(KEY_J):
+		shoot()
 
 func _physics_process(delta: float) -> void:
 	if is_on_floor():
@@ -26,6 +34,13 @@ func _physics_process(delta: float) -> void:
 	if direction:
 		velocity.x = direction * SPEED
 		sprite.flip_h = direction < 0
+		
+		if direction < 0:
+			gun.scale.x = -1
+			gun.position.x = -abs(gun.position.x)
+		else: 
+			gun.scale.x = 1
+			gun.position.x = abs(gun.position.x)
 	else:
 		velocity.x = move_toward(velocity.x, 0, SPEED)
 	move_and_slide()
@@ -41,3 +56,18 @@ func _physics_process(delta: float) -> void:
 		else:
 			sprite.play("idle")	
 	
+
+func add_ammo(amount: int) -> void:
+	ammo += amount
+
+func shoot() -> void:
+	if ammo <= 0:
+		return
+	ammo -= 1
+	var bullet = BANANA_BULLET.instantiate()
+	bullet.global_position = muzzle.global_position
+	if sprite.flip_h:
+		bullet.direction = -1
+	else:
+		bullet.direction = 1
+	get_parent().add_child(bullet)
