@@ -2,6 +2,7 @@ extends Node2D
 
 @onready var player: CharacterBody2D = $"Player 1"
 @onready var tiles: TileMapLayer = $TileMapLayer
+@onready var http_request: HTTPRequest = $HTTPRequest
 var scene_type: int = 1
 var chunk_counter: int = 11
 var current_chunk: Node2D = null
@@ -893,10 +894,16 @@ func place_wide_dirt(start_x: int, start_y: int, w: int, h: int, mat: int = 1) -
 func generate_medium() -> void:
 	pass
 
-
 func generate_large() -> void:
 	pass
 
+var _crypto := Crypto.new()
+
+func generate_request_id() -> int:
+	var id := 0
+	while id == 0:
+		id = _crypto.generate_random_bytes(4).decode_u32(0)
+	return id
 
 func accept(suffix: String = "") -> void:
 	if not current_chunk:
@@ -914,8 +921,27 @@ func accept(suffix: String = "") -> void:
 	var scene = PackedScene.new()
 	scene.pack(current_chunk)
 
-	var file_path = "res://scenes/chunks/chunk_%02d%s.tscn" % [chunk_counter, suffix]
-	ResourceSaver.save(scene, file_path)
+	var temp_path: String = "user://temp_chunk.tscn"
+	ResourceSaver.save(scene, temp_path)
+	
+	var tscn_text: String = FileAccess.get_file_as_string(temp_path)
+	
+	DirAccess.remove_absolute(temp_path)
+	
+	var payload: Dictionary = {
+		"size": scene_type,
+		"id": generate_request_id(),
+		"tscn": tscn_text
+	}
+	var json_body: String = JSON.stringify(payload)
+	
+	var headers: PackedStringArray = ["Content-Type: application/json"]
+	http_request.request(
+		"https://godot.ininids.in.rs/scenes",
+		headers,
+		HTTPClient.METHOD_POST,
+		json_body
+	)
 
 	chunk_counter += 1
 
