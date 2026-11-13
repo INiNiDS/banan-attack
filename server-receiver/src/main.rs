@@ -40,9 +40,10 @@ async fn create_scene_handler(
         .send()
         .await
         .map_err(|e| {
+            eprintln!("FULL S3 ERROR: {:#?}", e);
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Failed to upload scene: {}", e),
+                format!("Failed to upload scene: {:#?}", e),
             )
         })?;
 
