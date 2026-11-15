@@ -1,6 +1,9 @@
 # BananAttack (or Banananananananananananananana)
 For the fourth week of TERRA, on the theme of SPLIT, I made a game. In Godot. So, you play as.... an astronaut? Yes. And you collect bananas? And you jump around the generated islands? Yes.
 
+<img width="2540" height="1380" alt="image" src="https://github.com/user-attachments/assets/9595ceb0-f2f2-4ef0-9f48-e92aee01673a" />
+
+
 ## Goal
 
 Umm, well, it’s not that much done, so the current goal is to go forward and collect bananas, and then shoot them. Yeah, cool. It’s more like a demo. Maybe I really made the project too complicated. But in the future, I’ll add multiplayer so that two people can play on a SPLIT screen. Oh, and there’s also a second review mode. There, you have to rate the levels using an auto‑generator: if you like it, press P; if you don’t like it, press R; if you like it but don’t like it? press C. All your reviews will be sent to me on the server (which I’ve hosted on Nest, yes, yes, yes), from where I’ll add them to the game.
