@@ -8,16 +8,10 @@ var end = Vector2.ZERO
 var current_chunks = []
 
 func _ready() -> void:
-	var dir = DirAccess.open("res://scenes/chunks/")
-	if not dir:
-		print('hoooow?')
-	else:
-		if dir.list_dir_begin() == OK:
-			var file_name = dir.get_next()
-			while file_name != "":
-				if file_name.ends_with(".tscn"):
-					scenes.append(load("res://scenes/chunks/" + file_name))
-				file_name = dir.get_next()
+	var path = "res://scenes/chunks/"
+	for file_name in ResourceLoader.list_directory(path):
+		if file_name.ends_with(".tscn"):
+			scenes.append(load(path + file_name))
 
 
 func _process(delta: float) -> void:
