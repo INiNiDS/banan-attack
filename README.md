@@ -1,7 +1,7 @@
 # BananAttack (or Banananananananananananananana)
 For the fourth week of TERRA, on the theme of SPLIT, I made a game. In Godot. So, you play as.... an astronaut? Yes. And you collect bananas? And you jump around the generated islands? Yes.
 
-<img width="2540" height="1380" alt="image" src="https://github.com/user-attachments/assets/9595ceb0-f2f2-4ef0-9f48-e92aee01673a" />
+![Gameplay](https://github.com/user-attachments/assets/9595ceb0-f2f2-4ef0-9f48-e92aee01673a)
 
 ## How to run
 
@@ -49,3 +49,24 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ### G-G-G-Guuuun 
 
 Use gun using J. Just press it. There is nothing scary. Just do it. 
+
+### Terra Script
+Terra script it's for you, here, you can check "more detail on what the project is, how you made it and how to run it"
+#### What is project
+Project is game. I know it's may be shocking. Jump, Fire, Take, Go.
+#### How i made it
+First i installed engine Godot.
+Then i created project.
+Then i step by step made a project. Full step by step guide you can check in devlogs.
+
+Made with Godot 4 (GDScript, TileMapLayer, CharacterBody2D and many other options), custom sprites in GIMP, and a Rust backend on Nest (check out hackclub.app).
+#### How to run it
+
+Clone the repo:
+
+```bash
+git clone https://github.com/ininids/banan-attack
+```
+
+Then Click "Import" button in Godot and select project.godot file in place where you cloned. And use "Play" button to play.
+Or just go to itch.io. 
