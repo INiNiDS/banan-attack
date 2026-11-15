@@ -3,6 +3,12 @@ For the fourth week of TERRA, on the theme of SPLIT, I made a game. In Godot. So
 
 <img width="2540" height="1380" alt="image" src="https://github.com/user-attachments/assets/9595ceb0-f2f2-4ef0-9f48-e92aee01673a" />
 
+## How to run
+
+Go to itch.io:
+https://ininidsininidsinrs.itch.io/bananattack
+
+Enjoy playing right in your browser
 
 ## Goal
 
@@ -39,3 +45,7 @@ Others are by my staff :)
 (don't know if it really matters)
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+### G-G-G-Guuuun 
+
+Use gun using J. Just press it. There is nothing scary. Just do it. 
