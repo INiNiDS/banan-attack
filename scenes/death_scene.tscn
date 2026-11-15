@@ -1,0 +1,106 @@
+[gd_scene format=3 uid="uid://yb0sat58sgqk"]
+
+[ext_resource type="Texture2D" uid="uid://dbtulsv2wybxx" path="res://assets/pixel-adventure/Free/Background/Gray.png" id="1_3idvb"]
+[ext_resource type="Script" uid="uid://bdc0sa2414pvb" path="res://scripts/death_scene.gd" id="1_vcjmr"]
+[ext_resource type="Texture2D" uid="uid://bm3tpqltgb7dv" path="res://assets/down-arrow.png" id="2_o2qfb"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3idvb"]
+bg_color = Color(0, 0.69345695, 0.63586646, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_o2qfb"]
+bg_color = Color(0.77306104, 0.5575361, 5.7756904e-07, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dkhfj"]
+bg_color = Color(0.46617842, 1, 0.93594956, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vcjmr"]
+bg_color = Color(7.219613e-08, 0.26032546, 0.43150142, 1)
+
+[node name="DeathScene" type="Node2D" unique_id=572497341]
+script = ExtResource("1_vcjmr")
+
+[node name="Background" type="CanvasLayer" parent="." unique_id=1450461777]
+layer = -100
+
+[node name="TextureRect" type="TextureRect" parent="Background" unique_id=1314063439]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_3idvb")
+
+[node name="Button" type="Button" parent="." unique_id=323814028]
+offset_left = 451.0
+offset_top = 288.0
+offset_right = 663.0
+offset_bottom = 343.0
+theme_override_font_sizes/font_size = 32
+theme_override_styles/normal = SubResource("StyleBoxFlat_3idvb")
+theme_override_styles/normal_mirrored = SubResource("StyleBoxFlat_o2qfb")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_dkhfj")
+theme_override_styles/hover = SubResource("StyleBoxFlat_vcjmr")
+text = "Back to Menu"
+
+[node name="Button3" type="Button" parent="." unique_id=827067092]
+offset_left = 241.0
+offset_top = 392.0
+offset_right = 891.0
+offset_bottom = 603.0
+theme_override_font_sizes/font_size = 32
+theme_override_styles/normal = SubResource("StyleBoxFlat_3idvb")
+theme_override_styles/normal_mirrored = SubResource("StyleBoxFlat_o2qfb")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_dkhfj")
+theme_override_styles/hover = SubResource("StyleBoxFlat_vcjmr")
+text = "Exit Game
+"
+
+[node name="Button2" type="Button" parent="." unique_id=1406932487]
+offset_left = 450.0
+offset_top = 208.0
+offset_right = 662.0
+offset_bottom = 263.0
+theme_override_font_sizes/font_size = 32
+theme_override_styles/normal = SubResource("StyleBoxFlat_3idvb")
+theme_override_styles/normal_mirrored = SubResource("StyleBoxFlat_o2qfb")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_dkhfj")
+theme_override_styles/hover = SubResource("StyleBoxFlat_vcjmr")
+text = "Respawn
+"
+
+[node name="Label" type="Label" parent="." unique_id=654613360]
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 402.0
+offset_top = 31.0
+offset_right = 725.0
+offset_bottom = 119.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.012617188, 0.012617188, 0.012617188, 1)
+theme_override_font_sizes/font_size = 64
+text = "You died :("
+
+[node name="Label2" type="Label" parent="." unique_id=1256208630]
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 748.0
+offset_top = 158.0
+offset_right = 1126.0
+offset_bottom = 246.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.012617188, 0.012617188, 0.012617188, 1)
+theme_override_font_sizes/font_size = 32
+text = "plz press this if you tired"
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=182244955]
+offset_left = 687.0
+offset_top = 225.0
+offset_right = 956.0
+offset_bottom = 382.0
+texture = ExtResource("2_o2qfb")
+expand_mode = 1
+flip_h = true
+
+[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="Button3" to="." method="_on_button_3_pressed"]
+[connection signal="pressed" from="Button2" to="." method="_on_button_2_pressed"]

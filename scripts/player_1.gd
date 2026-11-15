@@ -59,7 +59,10 @@ func _physics_process(delta: float) -> void:
 		if direction != 0:
 			sprite.play("run")
 		else:
-			sprite.play("idle")	
+			sprite.play("idle")
+			
+	if global_position.y > 650:
+		get_tree().change_scene_to_file("res://scenes/death_scene.tscn")
 	
 
 func add_ammo(amount: int) -> void:

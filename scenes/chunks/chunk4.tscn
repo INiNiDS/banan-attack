@@ -1,7 +1,6 @@
 [gd_scene format=4 uid="uid://cvu8b6sc2sujy"]
 
 [ext_resource type="PackedScene" uid="uid://bfrm58ns6qcw1" path="res://scenes/loot_banana.tscn" id="1_1wlgw"]
-[ext_resource type="PackedScene" uid="uid://baga0r0cge3sh" path="res://scenes/player1.tscn" id="1_m0w4b"]
 [ext_resource type="Texture2D" uid="uid://bafiu8louivor" path="res://assets/pixel-adventure/Free/Terrain/Terrain (16x16).png" id="2_1wlgw"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_57xfd"]
@@ -301,12 +300,6 @@ sources/0 = SubResource("TileSetAtlasSource_57xfd")
 
 [node name="Chunk9" type="Node2D" unique_id=259809428]
 
-[node name="LootBanana" parent="." unique_id=1287232375 instance=ExtResource("1_1wlgw")]
-position = Vector2(1028, -17)
-
-[node name="Player 1" parent="." unique_id=1408675634 instance=ExtResource("1_m0w4b")]
-position = Vector2(32, -21)
-
 [node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=985101973]
 z_index = 1
 texture_filter = 1
@@ -315,3 +308,8 @@ tile_set = SubResource("TileSet_5runp")
 
 [node name="EndMarker" type="Marker2D" parent="." unique_id=231416561]
 position = Vector2(2319, 4)
+
+[node name="LootContainer" type="Node2D" parent="." unique_id=1571996478]
+
+[node name="LootBanana" parent="LootContainer" unique_id=1287232375 instance=ExtResource("1_1wlgw")]
+position = Vector2(1028, -17)
