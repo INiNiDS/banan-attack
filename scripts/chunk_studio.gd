@@ -33,6 +33,10 @@ var fork_hints: Array = []
 var landmark_fake_seeds: Array = []
 var shaft_x: int = 12
 var shaft_w: int = 4
+var med_air_cells: Dictionary = {} # med = medium
+var med_platforms: Array = []
+var lar_air_cells: Dictionary = {} # lar = large 0_0
+var lar_platforms: Array = []
 
 const TOP_LEFT_TILE = Vector2i(6, 0)
 const TOP_TILE = Vector2i(7, 0)
@@ -892,10 +896,652 @@ func place_wide_dirt(start_x: int, start_y: int, w: int, h: int, mat: int = 1) -
 
 
 func generate_medium() -> void:
-	pass
+	randomize()
+	solid_cells.clear()
+	med_air_cells.clear()
+	med_platforms.clear()
+
+	var peak_y: int = randi_range(-121, -45)
+	var total_h: int = FLOOR_Y - peak_y
+	var target_count: int = clampi(int(total_h * 0.85) + randi_range(-5, 8), 84, 118)
+
+	var pal: Dictionary = {
+		"box": [0, 1, 2, 3].pick_random(),
+		"alt_box": [0, 1, 2, 3].pick_random(),
+		"dirt": [0, 1, 2, 3].pick_random(),
+		"alt_dirt": [1, 2, 3].pick_random(),
+		"beam": [0, 1, 2].pick_random()
+	}
+
+	for cx in range(1, 5):
+		for cy in range(FLOOR_Y - 3, FLOOR_Y):
+			med_air_cells[Vector2i(cx, cy)] = true
+
+	med_build_setpieces(peak_y, pal)
+
+	var walker_count: int = 3 if total_h <= 105 else 2
+	var entry_zones: Array[Vector2i] = [
+		Vector2i(4, 13),
+		Vector2i(18, 28),
+		Vector2i(33, 43)
+	]
+	entry_zones.shuffle()
+
+	var walkers: Array = []
+	for w in range(walker_count):
+		var start_x: int = randi_range(entry_zones[w].x, entry_zones[w].y)
+		var start_kind: String = "box" if randf() < 0.72 else "mega_box"
+		var sz: Vector2i = get_shape_size(start_kind)
+		var y_off: int = [0, 1, 2].pick_random()
+		var s_rect: Rect2i = Rect2i(start_x, FLOOR_Y - sz.y - y_off, sz.x, sz.y)
+		var mat: int = pal["dirt"] if start_kind == "mega_box" else pal["box"]
+
+		var idx: int = med_try_place_single(start_kind, s_rect, mat)
+		if idx == -1:
+			idx = med_find_nearest_platform_in_band(start_x - 6, start_x + 6, FLOOR_Y - 8, FLOOR_Y)
+		if idx != -1:
+			var drift: int = 1 if start_x < 24 else -1
+			walkers.append({"idx": idx, "drift": drift, "turn_cd": randi_range(3, 5), "done": false})
+
+	var guard: int = 0
+	while guard < 240 and med_platforms.size() < target_count:
+		guard += 1
+		var lowest_w: int = -1
+		var max_y: int = -99999
+
+		for w in range(walkers.size()):
+			if walkers[w]["done"]:
+				continue
+			var wy: int = (med_platforms[walkers[w]["idx"]]["walk_rect"] as Rect2i).position.y
+			if wy <= peak_y + 2:
+				walkers[w]["done"] = true
+				continue
+			if wy > max_y:
+				max_y = wy
+				lowest_w = w
+
+		if lowest_w == -1:
+			break
+
+		var wk: Dictionary = walkers[lowest_w]
+		var cur_idx: int = wk["idx"]
+		var cur_r: Rect2i = med_platforms[cur_idx]["walk_rect"]
+
+		if wk["turn_cd"] <= 0 or cur_r.position.x < 6 or cur_r.position.x > chunk_width - 8:
+			if cur_r.position.x < 8:
+				wk["drift"] = 1
+			elif cur_r.position.x > chunk_width - 10:
+				wk["drift"] = -1
+			elif randf() < 0.72:
+				wk["drift"] = -wk["drift"]
+			wk["turn_cd"] = randi_range(3, 6)
+		wk["turn_cd"] -= 1
+
+		var next_idx: int = med_step_from_platform(cur_idx, wk["drift"], peak_y, pal, true)
+		if next_idx == -1:
+			next_idx = med_step_from_platform(cur_idx, -wk["drift"], peak_y, pal, true)
+		if next_idx == -1:
+			next_idx = med_fallback_step(cur_idx, peak_y, pal)
+
+		if next_idx == -1:
+			wk["done"] = true
+		else:
+			wk["idx"] = next_idx
+			if randf() < 0.25 and med_platforms.size() < target_count - 10:
+				var side_idx: int = med_step_from_platform(cur_idx, -wk["drift"], peak_y, pal, false)
+				if side_idx != -1 and randf() < 0.45:
+					med_step_from_platform(side_idx, -wk["drift"], peak_y, pal, false)
+
+	med_fill_empty_sectors(peak_y, target_count, pal)
+
+	for p in med_platforms:
+		for part in p["parts"]:
+			var pr: Rect2i = part["rect"]
+			place_shape(part["kind"], pr.position.x, pr.position.y, part["mat"])
+
+	var loot_container = Node2D.new()
+	loot_container.name = "LootContainer"
+	current_chunk.add_child(loot_container)
+
+	med_place_loot_spots(loot_container)
+
+func med_build_setpieces(peak_y: int, pal: Dictionary) -> void:
+	var total_h: int = FLOOR_Y - peak_y
+
+	if randf() < 0.40:
+		var count: int = randi_range(4, 6)
+		var step_x: int = randi_range(6, 7)
+		var sx: int = randi_range(6, 11)
+		var row_y: int = FLOOR_Y - 2 - (1 if randf() < 0.4 else 0)
+		var mat: int = pal["box"]
+		for i in range(count):
+			var bx: int = sx + i * step_x
+			if bx + 2 >= chunk_width - 2:
+				break
+			med_try_place_single("box", Rect2i(bx, row_y, 2, 2), mat)
+
+	var diag_count: int = 2 if total_h < 105 else 3
+	for d in range(diag_count):
+		var use_mega: bool = randf() < 0.55
+		var kind: String = "mega_box" if use_mega else "box"
+		var sz: Vector2i = get_shape_size(kind)
+		var mat: int = pal["dirt"] if use_mega else pal["alt_box"]
+		var dir: int = 1 if randf() < 0.5 else -1
+		var cx: int = randi_range(4, 18) if dir > 0 else randi_range(28, 42)
+		var band_y: int = FLOOR_Y - int(total_h * (float(d + 0.3) / float(diag_count + 0.5)))
+		var cy: int = clampi(band_y, peak_y + 12, FLOOR_Y - sz.y - 2)
+		var steps: int = randi_range(4, 6)
+		for s in range(steps):
+			if cx < 2 or cx + sz.x > chunk_width - 2 or cy < peak_y + 2:
+				break
+			med_try_place_single(kind, Rect2i(cx, cy, sz.x, sz.y), mat)
+			cx += dir * (sz.x + randi_range(2, 3))
+			cy -= randi_range(2, 3)
+
+	var row_count: int = 2 if total_h < 105 else 3
+	for r in range(row_count):
+		var band_y: int = FLOOR_Y - int(total_h * (float(r + 0.7) / float(row_count + 0.6)))
+		var row_y: int = clampi(band_y + randi_range(-4, 4), peak_y + 2, FLOOR_Y - 8)
+		var count: int = randi_range(3, 5)
+		var sx: int = randi_range(5, 20)
+		var kind: String = "h_beam" if randf() < 0.68 else "box"
+		var sz: Vector2i = get_shape_size(kind)
+		var mat: int = pal["beam"] if kind == "h_beam" else pal["alt_box"]
+		for i in range(count):
+			var px: int = sx + i * (sz.x + randi_range(2, 4))
+			if px + sz.x >= chunk_width - 2:
+				break
+			med_try_place_single(kind, Rect2i(px, row_y, sz.x, sz.y), mat)
+
+	if randf() < 0.30:
+		var wall_x: int = randi_range(12, 30)
+		var roof_y: int = randi_range(peak_y + 6, FLOOR_Y - 25)
+		var dir: int = 1 if wall_x < 24 else -1
+		var wall_mat: int = pal["alt_box"]
+		var parts: Array = []
+		var segments_v: int = randi_range(2, 3)
+		var segments_h: int = randi_range(3, 4)
+
+		for vy in range(segments_v):
+			parts.append({"kind": "v_beam", "rect": Rect2i(wall_x, roof_y + 1 + vy * 3, 1, 3), "mat": wall_mat})
+		for hx in range(segments_h):
+			var bx: int = (wall_x + hx * 3) if dir > 0 else (wall_x - 2 - hx * 3)
+			if bx >= 2 and bx + 3 <= chunk_width - 2:
+				parts.append({"kind": "h_beam", "rect": Rect2i(bx, roof_y, 3, 1), "mat": wall_mat})
+
+		if not parts.is_empty():
+			var bbox: Rect2i = med_parts_bbox(parts)
+			if med_can_place_parts(parts, bbox, false):
+				med_commit_platform("l_wall", parts, Rect2i(bbox.position.x, roof_y, bbox.size.x, 1))
+
+func med_step_from_platform(from_idx: int, pref_dir: int, peak_y: int, pal: Dictionary, prefer_up: bool) -> int:
+	var cur_r: Rect2i = med_platforms[from_idx]["walk_rect"]
+	var candidates: Array = []
+
+	for attempt in range(40):
+		var roll: float = randf()
+		var kind: String
+		if roll < 0.44: kind = "box"
+		elif roll < 0.62: kind = "mega_box"
+		elif roll < 0.75: kind = "h_beam"
+		elif roll < 0.86: kind = "v_beam"
+		elif roll < 0.88: kind = "l_corner"
+		else: kind = "box_stud"
+
+		var dy: int
+		if prefer_up:
+			dy = [1, 2, 3, 3, 4, 4, 5, 0, -1].pick_random()
+		else:
+			dy = [-1, 0, 1, 2, 3].pick_random()
+
+		var max_gap: int = med_max_gap_for_dy(dy)
+		var min_gap: int = 2 if dy <= 1 else 1
+		var gap: int = randi_range(min_gap, max_gap)
+		var dir: int = pref_dir if randf() < 0.82 else -pref_dir
+
+		var parts: Array = med_build_shape_parts(kind, 0, 0, pal)
+		var bbox: Rect2i = med_parts_bbox(parts)
+		var tx: int = (cur_r.position.x + cur_r.size.x + gap) if dir > 0 else (cur_r.position.x - bbox.size.x - gap)
+		var ty: int = cur_r.position.y - dy
+
+		if tx < 2 or tx + bbox.size.x > chunk_width - 2:
+			continue
+		if ty < peak_y or ty + bbox.size.y > FLOOR_Y - 2:
+			continue
+
+		parts = med_build_shape_parts(kind, tx, ty, pal)
+		var walk_r: Rect2i = med_parts_walk_rect(kind, tx, ty, bbox)
+
+		if not med_can_place_parts(parts, walk_r, false):
+			continue
+		if not med_is_arc_clear(cur_r, walk_r):
+			continue
+
+		candidates.append({"kind": kind, "parts": parts, "walk_r": walk_r})
+
+	if candidates.is_empty():
+		return -1
+
+	var chosen: Dictionary = candidates.pick_random()
+	return med_commit_platform(chosen["kind"], chosen["parts"], chosen["walk_r"])
+
+
+func med_fallback_step(from_idx: int, peak_y: int, pal: Dictionary) -> int:
+	var cur_r: Rect2i = med_platforms[from_idx]["walk_rect"]
+	for kind in ["box", "h_beam", "one"]:
+		var sz: Vector2i = get_shape_size(kind)
+		for dy in [3, 2, 4, 1, 0]:
+			for gap in [2, 3, 1, 4]:
+				if gap > med_max_gap_for_dy(dy):
+					continue
+				for dir in [1, -1]:
+					var tx: int = (cur_r.position.x + cur_r.size.x + gap) if dir > 0 else (cur_r.position.x - sz.x - gap)
+					var ty: int = cur_r.position.y - dy
+					if tx < 2 or tx + sz.x > chunk_width - 2 or ty < peak_y or ty + sz.y > FLOOR_Y - 2:
+						continue
+					var parts: Array = med_build_shape_parts(kind, tx, ty, pal)
+					var walk_r: Rect2i = Rect2i(tx, ty, sz.x, sz.y)
+					if med_can_place_parts(parts, walk_r, false) and med_is_arc_clear(cur_r, walk_r):
+						return med_commit_platform(kind, parts, walk_r)
+	return -1
+
+
+func med_fill_empty_sectors(peak_y: int, target_count: int, pal: Dictionary) -> void:
+	var total_h: int = FLOOR_Y - 2 - peak_y
+	var cols: int = 4
+	var rows: int = clampi(int(total_h / 15.0), 5, 10)
+	var col_w: float = float(chunk_width - 4) / float(cols)
+	var row_h: float = float(total_h) / float(rows)
+
+	var sector_coords: Array[Vector2i] = []
+	for r in range(rows):
+		for c in range(cols):
+			sector_coords.append(Vector2i(c, r))
+	sector_coords.shuffle()
+
+	for sc in sector_coords:
+		if med_platforms.size() >= target_count + 6:
+			break
+		var sx0: int = 2 + int(sc.x * col_w)
+		var sx1: int = 2 + int((sc.x + 1) * col_w)
+		var sy0: int = peak_y + int(sc.y * row_h)
+		var sy1: int = peak_y + int((sc.y + 1) * row_h)
+		var area: Rect2i = Rect2i(sx0, sy0, sx1 - sx0, sy1 - sy0)
+
+		if med_count_platforms_in_rect(area) >= 2:
+			continue
+
+		var cx_target: int = int((sx0 + sx1) / 2.0)
+		var cy_target: int = int((sy0 + sy1) / 2.0)
+		var nearest_idx: int = med_find_nearest_platform(cx_target, cy_target)
+		if nearest_idx == -1:
+			continue
+
+		var nr: Rect2i = med_platforms[nearest_idx]["walk_rect"]
+		var dir: int = 1 if nr.position.x < cx_target else -1
+		var step_idx: int = med_step_from_platform(nearest_idx, dir, peak_y, pal, nr.position.y > cy_target)
+		if step_idx != -1:
+			var sr: Rect2i = med_platforms[step_idx]["walk_rect"]
+			if abs(sr.position.x - cx_target) > 4 or abs(sr.position.y - cy_target) > 4:
+				med_step_from_platform(step_idx, dir, peak_y, pal, sr.position.y > cy_target)
+
+		if med_count_platforms_in_rect(area) == 0:
+			var kind: String = ["box", "mega_box", "h_beam"].pick_random()
+			var sz: Vector2i = get_shape_size(kind)
+			var px: int = clampi(cx_target + randi_range(-2, 2) - int(sz.x / 2.0), 2, chunk_width - 2 - sz.x)
+			var py: int = clampi(cy_target + randi_range(-2, 2) - int(sz.y / 2.0), peak_y, FLOOR_Y - 4 - sz.y)
+			var mat: int = pal["dirt"] if kind == "mega_box" else pal["alt_box"]
+			med_try_place_single(kind, Rect2i(px, py, sz.x, sz.y), mat)
+
+	var expand_guard: int = 0
+	while med_platforms.size() < target_count and expand_guard < 120:
+		expand_guard += 1
+		var base_idx: int = randi_range(0, med_platforms.size() - 1)
+		var br: Rect2i = med_platforms[base_idx]["walk_rect"]
+		var dir: int = 1 if br.position.x < 24 else -1
+		if randf() < 0.4:
+			dir = -dir
+		med_step_from_platform(base_idx, dir, peak_y, pal, randf() < 0.65)
+
+
+func med_build_shape_parts(kind: String, x: int, y: int, pal: Dictionary) -> Array:
+	match kind:
+		"one":
+			return [{"kind": "one", "rect": Rect2i(x, y, 1, 1), "mat": pal["box"]}]
+		"box":
+			var m: int = pal["box"] if randf() < 0.7 else pal["alt_box"]
+			return [{"kind": "box", "rect": Rect2i(x, y, 2, 2), "mat": m}]
+		"mega_box":
+			var dm: int = pal["dirt"] if randf() < 0.75 else pal["alt_dirt"]
+			return [{"kind": "mega_box", "rect": Rect2i(x, y, 3, 3), "mat": dm}]
+		"h_beam":
+			return [{"kind": "h_beam", "rect": Rect2i(x, y, 3, 1), "mat": pal["beam"]}]
+		"v_beam":
+			return [{"kind": "v_beam", "rect": Rect2i(x, y, 1, 3), "mat": pal["beam"]}]
+		"l_corner":
+			var bm: int = pal["beam"]
+			if randf() < 0.5:
+				return [
+					{"kind": "h_beam", "rect": Rect2i(x, y, 3, 1), "mat": bm},
+					{"kind": "v_beam", "rect": Rect2i(x + 3, y, 1, 3), "mat": bm}
+				]
+			else:
+				return [
+					{"kind": "v_beam", "rect": Rect2i(x, y, 1, 3), "mat": bm},
+					{"kind": "h_beam", "rect": Rect2i(x + 1, y + 2, 3, 1), "mat": bm}
+				]
+		"box_stud":
+			var m2: int = pal["box"]
+			if randf() < 0.5:
+				return [
+					{"kind": "box", "rect": Rect2i(x, y, 2, 2), "mat": m2},
+					{"kind": "one", "rect": Rect2i(x + 2, y + 1, 1, 1), "mat": m2}
+				]
+			else:
+				return [
+					{"kind": "one", "rect": Rect2i(x, y, 1, 1), "mat": m2},
+					{"kind": "box", "rect": Rect2i(x + 1, y, 2, 2), "mat": m2}
+				]
+	return [{"kind": "box", "rect": Rect2i(x, y, 2, 2), "mat": pal["box"]}]
+
+
+func med_parts_bbox(parts: Array) -> Rect2i:
+	var min_x: int = 9999; var min_y: int = 9999
+	var max_x: int = -9999; var max_y: int = -9999
+	for part in parts:
+		var r: Rect2i = part["rect"]
+		min_x = mini(min_x, r.position.x)
+		min_y = mini(min_y, r.position.y)
+		max_x = maxi(max_x, r.position.x + r.size.x)
+		max_y = maxi(max_y, r.position.y + r.size.y)
+	return Rect2i(min_x, min_y, max_x - min_x, max_y - min_y)
+
+
+func med_parts_walk_rect(kind: String, x: int, y: int, bbox: Rect2i) -> Rect2i:
+	if kind == "l_corner":
+		return Rect2i(x, y, bbox.size.x, 1)
+	return Rect2i(bbox.position.x, bbox.position.y, bbox.size.x, bbox.size.y)
+
+
+func med_try_place_single(kind: String, rect: Rect2i, mat: int, allow_touch_solid: bool = false) -> int:
+	if rect.position.x < 1 or rect.position.x + rect.size.x > chunk_width - 1:
+		return -1
+	if rect.position.y + rect.size.y > FLOOR_Y:
+		return -1
+	var parts: Array = [{"kind": kind, "rect": rect, "mat": mat}]
+	if not med_can_place_parts(parts, rect, allow_touch_solid):
+		return -1
+	return med_commit_platform(kind, parts, rect)
+
+
+func med_can_place_parts(parts: Array, walk_r: Rect2i, allow_touch_solid: bool) -> bool:
+	var margin: int = 0 if allow_touch_solid else 1
+	for part in parts:
+		var r: Rect2i = part["rect"]
+		var bottom_y: int = r.position.y + r.size.y
+		if bottom_y > FLOOR_Y:
+			return false
+		if not allow_touch_solid and bottom_y == FLOOR_Y - 1:
+			return false
+
+		for cx in range(r.position.x - margin, r.position.x + r.size.x + margin):
+			for cy in range(r.position.y - margin, r.position.y + r.size.y + margin):
+				if solid_cells.has(Vector2i(cx, cy)):
+					return false
+		for cx in range(r.position.x, r.position.x + r.size.x):
+			for cy in range(r.position.y, r.position.y + r.size.y):
+				if med_air_cells.has(Vector2i(cx, cy)):
+					return false
+
+	if not allow_touch_solid:
+		for cx in range(walk_r.position.x, walk_r.position.x + walk_r.size.x):
+			for cy in range(walk_r.position.y - 2, walk_r.position.y):
+				if solid_cells.has(Vector2i(cx, cy)):
+					return false
+	return true
+
+
+func med_commit_platform(kind: String, parts: Array, walk_r: Rect2i) -> int:
+	for part in parts:
+		var r: Rect2i = part["rect"]
+		for cx in range(r.position.x, r.position.x + r.size.x):
+			for cy in range(r.position.y, r.position.y + r.size.y):
+				solid_cells[Vector2i(cx, cy)] = true
+
+	for cx in range(walk_r.position.x, walk_r.position.x + walk_r.size.x):
+		for cy in range(walk_r.position.y - 2, walk_r.position.y):
+			med_air_cells[Vector2i(cx, cy)] = true
+
+	med_platforms.append({"kind": kind, "parts": parts, "walk_rect": walk_r})
+	return med_platforms.size() - 1
+
+
+func med_place_loot_spots(loot: Node2D) -> void:
+	var reachable_indices: Array[int] = med_get_reachable_platforms()
+	var candidates: Array[int] = []
+
+	for idx in reachable_indices:
+		var r: Rect2i = med_platforms[idx]["walk_rect"]
+		if r.position.y <= FLOOR_Y - 5:
+			candidates.append(idx)
+
+	if candidates.is_empty():
+		candidates = reachable_indices
+	if candidates.is_empty():
+		return
+
+	candidates.sort_custom(func(a: int, b: int) -> bool:
+		var ra: Rect2i = med_platforms[a]["walk_rect"]
+		var rb: Rect2i = med_platforms[b]["walk_rect"]
+		var sa: float = float(FLOOR_Y - ra.position.y) * 0.45 + randf() * 25.0
+		var sb: float = float(FLOOR_Y - rb.position.y) * 0.45 + randf() * 25.0
+		return sa > sb
+	)
+
+	var target_loot: int = clampi(int(med_platforms.size() / 6.0), 10, 20)
+	var chosen_rects: Array[Rect2i] = []
+
+	for min_dist in [10.0, 7.5]:
+		for idx in candidates:
+			if chosen_rects.size() >= target_loot:
+				break
+			var r: Rect2i = med_platforms[idx]["walk_rect"]
+			var center: Vector2 = Vector2(r.position.x + r.size.x * 0.5, r.position.y)
+			var too_close: bool = false
+			for cr in chosen_rects:
+				var c2: Vector2 = Vector2(cr.position.x + cr.size.x * 0.5, cr.position.y)
+				if center.distance_to(c2) < min_dist:
+					too_close = true
+					break
+			if not too_close:
+				chosen_rects.append(r)
+
+	if chosen_rects.is_empty():
+		return
+
+	var highest_i: int = 0
+	for i in range(1, chosen_rects.size()):
+		if chosen_rects[i].position.y < chosen_rects[highest_i].position.y:
+			highest_i = i
+
+	for i in range(chosen_rects.size()):
+		var r: Rect2i = chosen_rects[i]
+		var marker = Marker2D.new()
+		marker.name = "PeakLootMarker" if i == highest_i else ("LootMarker_" + str(i))
+		marker.position = Vector2((r.position.x + r.size.x * 0.5) * 16.0, r.position.y * 16.0 - 8.0)
+		loot.add_child(marker)
+
+
+func med_get_reachable_platforms() -> Array[int]:
+	var visited: Dictionary = {}
+	var queue: Array[int] = []
+
+	for i in range(med_platforms.size()):
+		var r: Rect2i = med_platforms[i]["walk_rect"]
+		if FLOOR_Y - r.position.y <= MAX_JUMP_Y:
+			visited[i] = true
+			queue.append(i)
+
+	var head: int = 0
+	while head < queue.size():
+		var cur_i: int = queue[head]
+		head += 1
+		var from_r: Rect2i = med_platforms[cur_i]["walk_rect"]
+
+		for j in range(med_platforms.size()):
+			if visited.has(j):
+				continue
+			var to_r: Rect2i = med_platforms[j]["walk_rect"]
+			var dy: int = from_r.position.y - to_r.position.y
+
+			if dy > MAX_JUMP_Y or dy < -14:
+				continue
+
+			var h_gap: int = med_horiz_gap(from_r, to_r)
+			if dy >= 0:
+				if h_gap < 0 and dy > 0:
+					continue
+				if h_gap <= med_max_gap_for_dy(dy) and med_is_arc_clear(from_r, to_r):
+					visited[j] = true
+					queue.append(j)
+			else:
+				var drop_dist: int = -dy
+				if h_gap <= 4 + int(drop_dist * 0.4):
+					visited[j] = true
+					queue.append(j)
+
+	var res: Array[int] = []
+	for k in visited.keys():
+		res.append(int(k))
+	return res
+
+
+func med_count_platforms_in_rect(area: Rect2i) -> int:
+	var count: int = 0
+	for p in med_platforms:
+		var r: Rect2i = p["walk_rect"]
+		if r.position.x >= area.position.x and r.position.x < area.position.x + area.size.x:
+			if r.position.y >= area.position.y and r.position.y < area.position.y + area.size.y:
+				count += 1
+	return count
+
+
+func med_find_nearest_platform(tx: int, ty: int) -> int:
+	var best_idx: int = -1
+	var best_dist: float = 999999.0
+	for i in range(med_platforms.size()):
+		var r: Rect2i = med_platforms[i]["walk_rect"]
+		var d: float = Vector2(r.position.x + r.size.x * 0.5, r.position.y).distance_to(Vector2(tx, ty))
+		if d < best_dist:
+			best_dist = d
+			best_idx = i
+	return best_idx
+
+
+func med_find_nearest_platform_in_band(min_x: int, max_x: int, min_y: int, max_y: int) -> int:
+	for i in range(med_platforms.size()):
+		var r: Rect2i = med_platforms[i]["walk_rect"]
+		if r.position.x >= min_x and r.position.x <= max_x and r.position.y >= min_y and r.position.y <= max_y:
+			return i
+	return -1
+
+
+func med_is_arc_clear(from_r: Rect2i, to_r: Rect2i) -> bool:
+	var apex_y: int = mini(from_r.position.y, to_r.position.y) - 2
+	var low_y: int = maxi(from_r.position.y, to_r.position.y)
+	var gap_start: int = mini(from_r.position.x + from_r.size.x, to_r.position.x + to_r.size.x)
+	var gap_end: int = maxi(from_r.position.x, to_r.position.x)
+	for cx in range(gap_start, gap_end):
+		for cy in range(apex_y, low_y):
+			if solid_cells.has(Vector2i(cx, cy)):
+				return false
+	return true
+
+
+func med_horiz_gap(a: Rect2i, b: Rect2i) -> int:
+	if b.position.x >= a.position.x + a.size.x:
+		return b.position.x - (a.position.x + a.size.x)
+	if a.position.x >= b.position.x + b.size.x:
+		return a.position.x - (b.position.x + b.size.x)
+	return -1
+
+
+func med_max_gap_for_dy(dy: int) -> int:
+	if dy >= 5: return 2
+	if dy >= 3: return 3
+	if dy == 2: return 4
+	if dy == 1: return 5
+	if dy == 0: return 5
+	return 6
 
 func generate_large() -> void:
-	pass
+	randomize()
+	solid_cells.clear()
+	lar_air_cells.clear()
+	lar_platforms.clear()
+	
+	var target_count = randi_range(28, 48)
+	var left_mat = [0, 1, 2, 3].pick_random()
+	var right_mat = [0, 1, 2, 3].pick_random()
+	var attempts: int = 0
+	var split_x = randi_range(55, 90)
+	
+	while lar_platforms.size() < target_count and attempts < 400:
+		attempts += 1
+		var platform_type: String = ""
+		var platrandom = randf()
+		if platrandom <= 0.40:
+			platform_type = "one"
+		elif platrandom <= 0.80:
+			platform_type = "box"
+		elif platrandom <= 0.90:
+			platform_type = "mega_box"
+		elif platrandom <= 1.0:
+			platform_type = "h_beam"
+		
+		
+		var sz = get_shape_size(platform_type)
+		var x = randi_range(8, chunk_width - 4 - sz.x)
+		var y = 0
+		
+		var floatrandom = randf()
+		if floatrandom <= 0.60:
+			y = randi_range(FLOOR_Y - 10, FLOOR_Y - sz.y)
+		else:
+			y = randi_range(FLOOR_Y - 22, FLOOR_Y - 11)
+		
+		var bottom_y = y + sz.y
+		if bottom_y == FLOOR_Y - 1 or bottom_y == FLOOR_Y - 2:
+			continue
+			
+		var can_place: bool = true
+		for cx in range(x - 1, x + sz.x + 1):
+			for cy in range(y - 1, y + sz.y + 1):
+				if solid_cells.has(Vector2i(cx, cy)):
+					can_place = false
+		if can_place:
+			for cx in range(x, x + sz.x):
+				for cy in range(y, y + sz.y):
+					if lar_air_cells.has(Vector2i(cx, cy)):
+						can_place = false
+						break
+						
+		if not can_place:
+			continue
+		var mat = 0
+		if x <= split_x:
+			mat = left_mat
+		else:
+			mat = right_mat
+		
+		place_shape(platform_type, x, y, mat) # okak
+		
+		for cx in range(x, x + sz.x):
+			for cy in range(y, y + sz.y):
+				solid_cells[Vector2i(cx, cy)] = true
+		
+		lar_platforms.append(Rect2i(x, y, sz.x, sz.y))
+		
 
 var _crypto := Crypto.new()
 
