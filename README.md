@@ -18,3 +18,21 @@ Another part is automatic generation. This is what you see in the Review. There 
 By now it's all, but so far so good, yes?
 
 (I know you guys know how to move, so I didn't add it to readme)
+
+## Stop it's not over 
+
+(how many ends we have?)
+
+### Credits
+
+By main, I used open asset pack licensed by CC0 called "Pixel Adventure 1" by Pixel Frog. You can get it on itch.io: https://pixelfrog-assets.itch.io/pixel-adventure-1
+
+And also used some icon from flaticon. Can be found here: https://www.flaticon.com/
+
+Others are by my staff :)
+
+### License
+
+(don't know if it really matters)
+
+This project is licensed under the MIT License - see the LICENSE file for details.
